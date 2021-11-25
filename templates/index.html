@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="static/login.css">
+    <title>Homepage</title>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-9 col-md-7 col-lg-12 mx-auto">
+                <div class="card card-signin my-10">
+                    <div class="card-body">
+                        <div id="game">
+                            <h5 class="card-title text-center">Welcome to Snakes & Ladders game</h5>
+                            <h5 id="snakes" class="snakes"></h5>
+                            <h5 id="ladders" class="ladders"></h5>
+                            <Button id="dice" class="btn btn-lg btn-primary btn-block text-uppercase" value="Generate" onclick="dice()" >
+                                Roll
+                            </Button>
+                            <h3 id="gen_num"></h3>
+                            <h5 id="turn" ></h5>
+                            <h1 id="player" ></h1>
+                            <h1 id="computer" ></h1>
+                        </div>
+                        <center><h1 id="winner" style="color:green"></h1></center>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</html>
+
+<script>
+    var active = "player", winner = null, ladders='', snakes='';
+    var player_position = 0, computer_position = 0;
+	var jump = checkerboard(20);
+
+    jump.forEach(function(value, key) {
+        if(key < value){
+            ladders += ('<br>'+key + ' --> ' + value);
+        }else{
+            snakes += ('<br>'+key + ' --> ' + value);
+        }
+    
+    })
+
+
+    $("#snakes").html("Snakes : "+snakes);
+    $("#ladders").html("Ladders : "+ladders);
+    $("#turn").html(active + " turn now!");
+    $("#player").html("Player is at " + player_position);
+    $("#computer").html("Computer is at " + computer_position);
+	
+	function checkerboard(n){
+		var jumps = new Map();
+		var arr = [];
+		while(arr.length <= (2 * n)) {
+　　　　	    var num = parseInt(Math.random() * 99 + 1);
+　　　　　　  if(arr.indexOf(num) == -1){
+　　　　　　　　    arr.push(num);
+　　　　　　  }
+　　　　  }
+		for(var i = 1; i <= n; i++){
+			jumps.set(arr[2 * i - 1], arr[2 * i]);
+		}		
+		return jumps;
+    }
+    
+
+    function dice(){
+        var num = Math.floor(Math.random() * 5) + 1;
+        $("#gen_num").html(num);
+        move(num);
+    }
+   
+    function move(num){        
+        var move = null;
+        if(active == "player"){
+            if (player_position + num <= 100){
+                player_position += num;
+                if(jump.has(player_position)){
+                    if(player_position < jump.get(player_position)){
+                        move = "Jumps";
+                    }else{
+                        move = "Falls";
+                    }
+                    alert(move + " from " + player_position + " to " + jump.get(player_position));
+                    player_position = jump.get(player_position);
+                }
+                $("#player").html("New position of player is " + player_position);
+                if(player_position == 100){
+                    winner = active;
+                }
+            }
+            else{
+                alert("Player can't move");
+            }
+            active = "computer";
+            $("#turn").html(active + " turn now!");
+            if (active == "computer"){
+               setTimeout(dice, 1500);
+            }
+        }
+        else {
+            if(computer_position + num <= 100){
+                computer_position += num;
+                if(jump.has(computer_position)){
+                    if(computer_position < jump.get(computer_position)){
+                        move = "Jumps";
+                    }else{
+                        move = "Falls";
+                    }
+                    alert(move + " from " + computer_position + " to " + jump.get(computer_position));
+                    computer_position = jump.get(computer_position);
+                }
+                $("#computer").html("New position of computer is " + computer_position);
+                if(computer_position == 100){
+                    winner = active;
+                }
+            }
+            else{
+                alert("Computer can't move");
+            }
+            active = "player";
+            $("#turn").html(active + " turn now!");
+        }
+        if(winner){
+            $("#game").hide();
+            $("#winner").html("Winner of this game is " + winner);
+        }
+    }
+</script>
